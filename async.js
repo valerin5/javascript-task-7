@@ -7,7 +7,6 @@ exports.runParallel = runParallel;
  * @param {Array} jobs – функции, которые возвращают промисы
  * @param {Number} parallelNum - число одновременно исполняющихся промисов
  * @param {Number} timeout - таймаут работы промиса
- * @returns {Promise}
  */
 
 function runParallel(jobs, parallelNum, timeout = 1000) {
@@ -35,7 +34,8 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
 
     function workJob(indexJob, resolve) {
         let jobResult = result => finishJob(result, indexJob, resolve);
-        finishJobWithTimeout(indexJob).then(jobResult)
+
+        return finishJobWithTimeout(indexJob).then(jobResult)
             .catch(jobResult);
     }
 
