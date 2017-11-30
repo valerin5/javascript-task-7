@@ -7,9 +7,11 @@ exports.runParallel = runParallel;
  * @param {Array} jobs – функции, которые возвращают промисы
  * @param {Number} parallelNum - число одновременно исполняющихся промисов
  * @param {Number} timeout - таймаут работы промиса
+ * @returns {Promise}
  */
 
 function runParallel(jobs, parallelNum, timeout = 1000) {
+
     let results = [];
     let startJobs = 0;
     let finishJobs = 0;
@@ -18,27 +20,17 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         if (!jobs.length) {
             resolve(results);
         }
-        for (let i = 0; i < parallelNum; i++) {
-            workJob(i, resolve);
+        while (startJobs < parallelNum) {
+            workJob(startJobs++, resolve);
         }
     });
 
     function finishJobWithTimeout(indexJob) {
         return new Promise((timeResolve, timeReject) => {
-            jobs[indexJob]().then(timeResolve, timeReject);
+            jobs[indexJob]()
+                .then(timeResolve, timeReject);
             setTimeout(() => timeReject(new Error('Timeout')), timeout);
         });
-    }
-
-    function finishJob(result, indexJob, resolve) {
-        results[indexJob] = result;
-        finishJobs = finishJobs + 1;
-        if (finishJobs === jobs.length) {
-            resolve(result);
-        } else if (startJobs < finishJobs) {
-            startJobs = startJobs + 1;
-            workJob(startJobs, resolve);
-        }
     }
 
     function workJob(indexJob, resolve) {
@@ -46,5 +38,16 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         finishJobWithTimeout(indexJob).then(jobResult)
             .catch(jobResult);
     }
+
+    function finishJob(result, indexJob, resolve) {
+        results[indexJob] = result;
+        finishJobs++;
+        if (finishJobs === jobs.length) {
+            resolve(result);
+        } else if (startJobs < jobs.length) {
+            workJob(startJobs++, resolve);
+        }
+    }
+
 
 }
