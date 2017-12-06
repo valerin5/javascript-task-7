@@ -11,7 +11,7 @@ exports.runParallel = runParallel;
 
 function runParallel(jobs, parallelNum, timeout = 1000) {
 
-    let results = jobs;
+    let results = new Array(jobs.length);
     let startJobs = 0;
     let finishJobs = 0;
 
