@@ -13,7 +13,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
 
     let results = new Array(jobs.length);
     let startJobs = 0;
-    let finishJobs = 0;
+    let finishedJobs = 0;
 
     return new Promise(resolve => {
         if (!jobs.length) {
@@ -41,8 +41,8 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
 
     function finishJob(result, jobIndex, resolve) {
         results[jobIndex] = result;
-        finishJobs++;
-        if (finishJobs === jobs.length) {
+        finishedJobs++;
+        if (finishedJobs === jobs.length) {
             resolve(results);
         } else if (startJobs < jobs.length) {
             runJob(startJobs++, resolve);
